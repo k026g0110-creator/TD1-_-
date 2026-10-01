@@ -77,11 +77,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		Novice::GetHitKeyStateAll(keys);
 		//タイマーとフレーム
 		timer++;
-		if (timer > 60) {
+		if (timer > 5) {
 			timer = 0;
 			frame++;
 		}
-		if (frame > 20) {
+		if (frame > 10) {
 			frame = 0;
 		}
 
@@ -122,24 +122,34 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 					obj[i].velocity.y += obj[i].acceleration.y;
 					obj[i].position.y += obj[i].velocity.y;
 				}
-				//スペースを押したとき範囲内なら消す判定
-				if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
-					if (obj[0].position.y+obj[0].radius>pAreaY-perfectAreaRadius&&
-						obj[0].position.y-obj[0].radius<pAreaY+perfectAreaRadius)
+
+				if (obj[i].position.y >= 720 + obj[i].radius + 20) {
+					obj[i].isAlive = false;
+				}
+			}
+
+			//スペースを押したとき範囲内なら消す判定
+			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
+				for (int i = 0;i < 5;i++) {
+					if (!obj[i].isAlive) {
+						continue;
+					}
+					if (obj[i].position.y + obj[i].radius > pAreaY - perfectAreaRadius &&
+						obj[i].position.y - obj[i].radius < pAreaY + perfectAreaRadius)
 					{
 						//対象物を消す
 						obj[i].isAlive = false;
 						score += perfectScore;
 					}
-					else if (obj[0].position.y+obj[0].radius>pAreaY-greatAreaRadius&&
-						obj[0].position.y-obj[0].radius<pAreaY+greatAreaRadius)
+					else if (obj[i].position.y + obj[i].radius > pAreaY - greatAreaRadius &&
+						obj[i].position.y - obj[i].radius < pAreaY + greatAreaRadius)
 					{
 						//対象物を消す
 						obj[i].isAlive = false;
 						score += greatScore;
 					}
-					else if (obj[0].position.y+obj[0].radius>pAreaY-goodAreaRadius&&
-						obj[0].position.y-obj[0].radius<pAreaY+goodAreaRadius)
+					else if (obj[i].position.y + obj[i].radius > pAreaY - goodAreaRadius &&
+						obj[i].position.y - obj[i].radius < pAreaY + goodAreaRadius)
 					{
 						//対象物を消す
 						obj[i].isAlive = false;
@@ -149,12 +159,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 						score -= 50;
 					}
 				}
-				if (obj[i].position.y >= 720 + obj[i].radius + 20) {
-					obj[i].isAlive = false;
-				}
-			}
-			if (!obj[0].isAlive) {
-				continue;
 			}
 		}
 		//sceneがgamecreaのとき
@@ -182,13 +186,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		}
 		//sceneがgameのとき
 		if (scene == game) {
-			Novice::DrawSprite(pAreaX, pAreaY, parea, 3.0f, 3.0f, 0.0f, 0xFFFFFFFF);
 			Novice::DrawEllipse(pAreaX, pAreaY, goodAreaRadius, goodAreaRadius, 0.0f, BLUE, kFillModeSolid);
 			Novice::DrawEllipse(pAreaX, pAreaY, greatAreaRadius, greatAreaRadius, 0.0f, GREEN, kFillModeSolid);
 			Novice::DrawEllipse(pAreaX, pAreaY, perfectAreaRadius, perfectAreaRadius, 0.0f, RED, kFillModeSolid);
-
-			for (int i = 0;i < 5;i++) {
-				Novice::DrawEllipse(static_cast<int>(obj[i].position.x), static_cast<int>(obj[i].position.y), static_cast<int>(obj[0].radius), static_cast<int>(obj[i].radius), 0.0f, obj[0].color, kFillModeSolid);
+			if (obj[0].isAlive) {
+				Novice::DrawEllipse(static_cast<int>(obj[0].position.x), static_cast<int>(obj[0].position.y), static_cast<int>(obj[0].radius), static_cast<int>(obj[0].radius), 0.0f, obj[0].color, kFillModeSolid);
 			}
 			Novice::ScreenPrintf(10, 10, "%d", score);
 		}
