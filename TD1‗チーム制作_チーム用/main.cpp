@@ -85,7 +85,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		//sceneがgamestartのとき
 		if (scene == gamestart) {
-
+			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
+				scene = game;
+			}
 		}
 		//sceneがgameのとき
 		if (scene == game) {
@@ -154,9 +156,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		//sceneがgamestartのとき
 		if (scene == gamestart) {
 			Novice::ScreenPrintf(500, 400, "title");
-			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
-				scene = game;
-			}
 		}
 		//sceneがgameのとき
 		if (scene == game) {
