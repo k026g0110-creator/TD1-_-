@@ -36,7 +36,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// ライブラリの初期化
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
-	int parea = Novice::LoadTexture("./images/strike.png");
 	int scene = gamestart;
 	int frame = 0;
 	int timer = 0;
