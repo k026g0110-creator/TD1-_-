@@ -98,7 +98,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 						//オブジェクトを出現させる
 						obj[i].isAlive = true;
 						//一回切る奴のやつ
-						if (obj[0].type == ONE) {
+						if (obj[i].type == ONE) {
 							//オブジェクトの初期化
 							obj[i].position.x = 200;
 							obj[i].position.y = 200;
