@@ -105,6 +105,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 				obj[0].position.y += obj[0].velocity.y;
 			}
 			//スペースを押したとき範囲内なら消す判定
+
 			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
 				if (obj[0].position.x >= pAreaX &&
 					obj[0].position.x <= hitAreaRightX &&
