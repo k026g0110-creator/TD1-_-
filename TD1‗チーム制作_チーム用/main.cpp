@@ -36,7 +36,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// ライブラリの初期化
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
-	int parea = Novice::LoadTexture("./images/strike.png");
 	int scene = gamestart;
 	int frame = 0;
 	int timer = 0;
@@ -54,9 +53,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	int pAreaX = 900;
 	int pAreaY = 400;
 
-	int perfectAreaRadius = 30;
-	int greatAreaRadius = 75;
-	int goodAreaRadius = 120;
+	int perfectAreaRadius = 50;
+	int greatAreaRadius = 100;
+	int goodAreaRadius = 140;
 
 	int score = 0;
 	int perfectScore = 1000;
@@ -108,7 +107,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 							//オブジェクトの初期化
 							obj[i].position.x = 200;
 							obj[i].position.y = 200;
-							obj[i].velocity.x = 10;
+							obj[i].velocity.x = 13;
 							obj[i].velocity.y = -10.0f;
 							//切る回数の初期化
 							slashNum = 1;
@@ -128,29 +127,29 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 				}
 			}
 
-			//スペースを押したとき範囲内なら消す判定
+			//スペースを押したとき範囲内なら消す判定     //変更！！！！！！！！！！！
 			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
-				for (int i = 0;i < 5;i++) {
+				for (int i = 0;i < 1;i++) {
 					if (!obj[i].isAlive) {
 						continue;
 					}
-					if (obj[i].position.y + obj[i].radius > pAreaY - perfectAreaRadius &&
-						obj[i].position.y - obj[i].radius < pAreaY + perfectAreaRadius)
+					if (obj[i].position.y + obj[i].radius > pAreaY + 50 &&
+						obj[i].position.y - obj[i].radius < pAreaY + 100)
 					{
 						//対象物を消す
 						obj[i].isAlive = false;
 						score += perfectScore;
 					}
-					else if (obj[i].position.y + obj[i].radius > pAreaY - greatAreaRadius &&
-						obj[i].position.y - obj[i].radius < pAreaY + greatAreaRadius)
+					else if (obj[i].position.y + obj[i].radius > pAreaY + 10 &&
+						obj[i].position.y - obj[i].radius < pAreaY + 110)
 					{
 						//対象物を消す
 						obj[i].isAlive = false;
 						score += greatScore;
 					}
-					else if (obj[i].position.y + obj[i].radius > pAreaY - goodAreaRadius &&
-						obj[i].position.y - obj[i].radius < pAreaY + goodAreaRadius)
-					{
+					else if (obj[i].position.y + obj[i].radius > pAreaY -20 &&
+						obj[i].position.y - obj[i].radius < pAreaY + 120)
+					{//ここまで！！！！！！！！！！！！！！！！
 						//対象物を消す
 						obj[i].isAlive = false;
 						score += goodScore;
@@ -185,10 +184,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			}
 		}
 		//sceneがgameのとき
-		if (scene == game) {
-			Novice::DrawEllipse(pAreaX, pAreaY, goodAreaRadius, goodAreaRadius, 0.0f, BLUE, kFillModeSolid);
-			Novice::DrawEllipse(pAreaX, pAreaY, greatAreaRadius, greatAreaRadius, 0.0f, GREEN, kFillModeSolid);
-			Novice::DrawEllipse(pAreaX, pAreaY, perfectAreaRadius, perfectAreaRadius, 0.0f, RED, kFillModeSolid);
+		if (scene == game) {//変更！！！！！！！！！！！
+			Novice::DrawBox(pAreaX - 40, pAreaY - 20, goodAreaRadius, goodAreaRadius, 0.0f, BLUE, kFillModeSolid);
+			Novice::DrawBox(pAreaX - 10, pAreaY + 10, greatAreaRadius, greatAreaRadius, 0.0f, GREEN, kFillModeSolid);
+			Novice::DrawBox(pAreaX + 30, pAreaY + 50, perfectAreaRadius, perfectAreaRadius, 0.0f, RED, kFillModeSolid);//ここまで！！！！！！！！！！！！！！！！
 			if (obj[0].isAlive) {
 				Novice::DrawEllipse(static_cast<int>(obj[0].position.x), static_cast<int>(obj[0].position.y), static_cast<int>(obj[0].radius), static_cast<int>(obj[0].radius), 0.0f, obj[0].color, kFillModeSolid);
 			}
