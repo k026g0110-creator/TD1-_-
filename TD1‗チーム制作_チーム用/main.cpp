@@ -8,7 +8,7 @@ enum types {
 enum gamescene {
 	gamestart,
 	game,
-	gamecrea,
+	result,
 	gamemiss
 };
 
@@ -37,7 +37,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
 	int parea = Novice::LoadTexture("./images/strike.png");
-	int scene = game;
+	int scene = gamestart;
 	int frame = 0;
 	int timer = 0;
 	float gravity = 0.5;
@@ -127,7 +127,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 						obj[i].isAlive = false;
 					}
 				}
-				if (obj[i].position.y >= 720 + obj[i].radius+20) {
+				if (obj[i].position.y >= 720 + obj[i].radius + 20) {
 					obj[i].isAlive = false;
 				}
 			}
@@ -136,7 +136,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			}
 		}
 		//sceneがgamecreaのとき
-		if (scene == gamecrea) {
+		if (scene == result) {
 
 		}
 		//sceneがgamemissのとき
@@ -153,7 +153,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		//sceneがgamestartのとき
 		if (scene == gamestart) {
-
+			Novice::ScreenPrintf(500, 400, "title");
+			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
+				scene = game;
+			}
 		}
 		//sceneがgameのとき
 		if (scene == game) {
@@ -163,7 +166,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			}
 		}
 		//sceneがgamecreaのとき
-		if (scene == gamecrea) {
+		if (scene == result) {
 
 		}
 		//sceneがgamemissのとき
@@ -178,9 +181,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			break;
 		case game:
 			break;
-		case gamecrea:
-			break;
-		case gamemiss:
+		case result:
 			break;
 		}
 		// フレームの終了
