@@ -28,6 +28,7 @@ struct Obj {
 	bool isAlive;
 	float respawntime;
 	int type;
+	int hp;
 };
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -40,14 +41,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	int frame = 0;
 	int timer = 0;
 	float gravity = 0.5;
+	float baund = -1.0;
 
-	int nowObj = 0;
-
-	int slashNum = 0;
-
-	Obj obj[5] = {
-		{{0.0f,0.0f},{0.0f,0.0f},{0.0f,0.0f},30.0f,WHITE,false,0.0f,ONE},
-		{{0.0f,0.0f},{0.0f,0.0f},{0.0f,0.0f},30.0f,RED,false,0.0f,ONE},
+	Obj obj[2] = {
+		{{0.0f,0.0f},{0.0f,0.0f},{0.0f,0.0f},30.0f,WHITE,false,0.0f,ONE,1},
+		{{0.0f,0.0f},{0.0f,0.0f},{0.0f,0.0f},30.0f,RED,false,10.0f,TWO,2},
 	};
 
 	int pAreaX = 900;
@@ -61,6 +59,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	int perfectScore = 1000;
 	int greatScore = 750;
 	int goodScore = 500;
+
+	int objONEhp = 1;
+	int objTWOhp = 2;
 
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
@@ -76,14 +77,13 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		Novice::GetHitKeyStateAll(keys);
 		//タイマーとフレーム
 		timer++;
-		if (timer > 5) {
+		if (timer > 10) {
 			timer = 0;
 			frame++;
 		}
 		if (frame > 10) {
 			frame = 0;
 		}
-
 		///
 		/// ↓更新処理ここから
 		///
@@ -94,34 +94,40 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		}
 		//sceneがgameのとき
 		if (scene == game) {
+
 			//オブジェクトが生きていない
-			for (int i = 0;i < 5;i++) {
+			for (int i = 0;i < 2;i++) {
+				//死んでいる弾
 				if (!obj[i].isAlive) {
-					nowObj = ((rand() % 2 + 1));
+
 					//リスポーンタイマーが対象秒数になったら
-					if (obj[i].respawntime == frame) {
+					if (obj[i].respawntime > 0.0f) {
+						obj[i].respawntime--;
+					}
+					else {
+
 						//オブジェクトを出現させる
 						obj[i].isAlive = true;
-						//一回切る奴のやつ
+						//切る奴の初期化
+						obj[i].position.x = 200;
+						obj[i].position.y = 200;
+						obj[i].velocity.x = 13;
+						obj[i].velocity.y = -10.0f;
 						if (obj[i].type == ONE) {
-							//オブジェクトの初期化
-							obj[i].position.x = 200;
-							obj[i].position.y = 200;
-							obj[i].velocity.x = 10;
-							obj[i].velocity.y = -10.0f;
-							//切る回数の初期化
-							slashNum = 1;
+							obj[0].hp = objONEhp;
+						}
+						else if (obj[i].type == TWO) {
+							obj[1].hp = objTWOhp;
 						}
 					}
 				}
 				else {
 					//オブジェクトの物理演算
 					obj[i].velocity.y += gravity;
+					obj[i].position.y += obj[i].velocity.y;
 					obj[i].position.x += obj[i].velocity.x;
 					obj[i].velocity.y += obj[i].acceleration.y;
-					obj[i].position.y += obj[i].velocity.y;
 				}
-
 				if (obj[i].position.y >= 720 + obj[i].radius + 20) {
 					obj[i].isAlive = false;
 				}
@@ -129,30 +135,100 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 			//スペースを押したとき範囲内なら消す判定
 			if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
-				for (int i = 0;i < 5;i++) {
+				for (int i = 0;i < 2;i++) {
 					if (!obj[i].isAlive) {
 						continue;
 					}
-					if (obj[i].position.y + obj[i].radius > pAreaY - perfectAreaRadius &&
-						obj[i].position.y - obj[i].radius < pAreaY + perfectAreaRadius)
+					//パーフェクトの範囲内判定
+					if (obj[i].position.y > pAreaY - perfectAreaRadius &&
+						obj[i].position.y < pAreaY + perfectAreaRadius)
 					{
-						//対象物を消す
-						obj[i].isAlive = false;
-						score += perfectScore;
+						//切断回数の計測
+						obj[i].hp -= 1;
+						if (obj[i].hp <= 0) {
+							// HPが0になったら消す
+							obj[i].isAlive = false;
+							obj[i].respawntime = 60.0f;
+							score += perfectScore;
+						}
+						else {
+							// まだHPが残っている場合だけバウンド
+							obj[i].velocity.y *= baund;
+							obj[i].velocity.x = 0;
+						}
+						//切断ノルマ達成
+						if (obj[i].hp <= 0) {
+							//オブジェクトを消す
+							obj[i].isAlive = false;
+							//リスポーンタイムのリセット
+							obj[i].respawntime = 60.0f;
+							//スコアを加える
+							score += perfectScore;
+							//種類の計測
+							if (obj[i].type == ONE) {
+								//hpリセット
+								obj[0].hp = objONEhp;
+							}
+							else if (obj[i].type == TWO) {
+								//hpリセット
+								obj[1].hp = objTWOhp;
+							}
+						}
 					}
-					else if (obj[i].position.y + obj[i].radius > pAreaY - greatAreaRadius &&
-						obj[i].position.y - obj[i].radius < pAreaY + greatAreaRadius)
+					//グレイトの範囲内判定
+					else if (obj[i].position.y > pAreaY - greatAreaRadius &&
+						obj[i].position.y < pAreaY + greatAreaRadius)
 					{
-						//対象物を消す
-						obj[i].isAlive = false;
-						score += greatScore;
+						//切断回数の計測
+						obj[i].hp -= 1;
+						//上に跳ねる
+						obj[i].velocity.y *= baund;
+						obj[i].velocity.x = 0;
+						//切断ノルマ達成
+						if (obj[i].hp <= 0) {
+							//オブジェクトを消す
+							obj[i].isAlive = false;
+							//リスポーンタイムのリセット
+							obj[i].respawntime = 60.0f;
+							//スコアを加える
+							score += greatScore;
+							//種類の計測
+							if (obj[i].type == ONE) {
+								//hpリセット
+								obj[0].hp = objONEhp;
+							}
+							else if (obj[i].type == TWO) {
+								//hpリセット
+								obj[1].hp = objTWOhp;
+							}
+						}
 					}
-					else if (obj[i].position.y + obj[i].radius > pAreaY - goodAreaRadius &&
-						obj[i].position.y - obj[i].radius < pAreaY + goodAreaRadius)
+					else if (obj[i].position.y > pAreaY - goodAreaRadius &&
+						obj[i].position.y < pAreaY + goodAreaRadius)
 					{
-						//対象物を消す
-						obj[i].isAlive = false;
-						score += goodScore;
+						//切断回数の計測
+						obj[i].hp -= 1;
+						//上に跳ねる
+						obj[i].velocity.y *= baund;
+						obj[i].velocity.x = 0;
+						//切断ノルマ達成
+						if (obj[i].hp <= 0) {
+							//オブジェクトを消す
+							obj[i].isAlive = false;
+							//リスポーンタイムのリセット
+							obj[i].respawntime = 60.0f;
+							//スコアを加える
+							score += goodScore;
+							//種類の計測
+							if (obj[i].type == ONE) {
+								//hpリセット
+								obj[0].hp = objONEhp;
+							}
+							else if (obj[i].type == TWO) {
+								//hpリセット
+								obj[1].hp = objTWOhp;
+							}
+						}
 					}
 					else {
 						score -= 50;
@@ -188,10 +264,13 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			Novice::DrawEllipse(pAreaX, pAreaY, goodAreaRadius, goodAreaRadius, 0.0f, BLUE, kFillModeSolid);
 			Novice::DrawEllipse(pAreaX, pAreaY, greatAreaRadius, greatAreaRadius, 0.0f, GREEN, kFillModeSolid);
 			Novice::DrawEllipse(pAreaX, pAreaY, perfectAreaRadius, perfectAreaRadius, 0.0f, RED, kFillModeSolid);
-			if (obj[0].isAlive) {
-				Novice::DrawEllipse(static_cast<int>(obj[0].position.x), static_cast<int>(obj[0].position.y), static_cast<int>(obj[0].radius), static_cast<int>(obj[0].radius), 0.0f, obj[0].color, kFillModeSolid);
+
+			for (int i = 0;i < 2;i++) {
+				if (obj[i].isAlive) {
+					Novice::DrawEllipse(static_cast<int>(obj[i].position.x), static_cast<int>(obj[i].position.y), static_cast<int>(obj[i].radius), static_cast<int>(obj[0].radius), 0.0f, obj[i].color, kFillModeSolid);
+				}
+				Novice::ScreenPrintf(10, 10, "%d", score);
 			}
-			Novice::ScreenPrintf(10, 10, "%d", score);
 		}
 		//sceneがgamecreaのとき
 		if (scene == result) {
